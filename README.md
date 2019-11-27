@@ -11,6 +11,21 @@ CSOP uses CRDs to allow service owners to easily deploy a service that conforms 
 - Debug Containers
 - Resource Customization
 
+## Container Contract
+
+### Network
+
+Applications MUST serve their application traffic over HTTPS on *:8443 (see "Filesystem" below for certificate locations).
+
+Applications MUST serve Kubernetes health checks over HTTP on *:8080 and HTTPS on *:8443 and MUST respond to:
+
+GET /_liveness
+MUST respond with a 200 OK to indicate the service is running.
+
+GET /_readiness
+MUST respond with a 200 OK to indicate the service is ready to serve traffic.
+
+
 ## Deployment
 
 Service owners deploy a CSOP for each service they want to run in a namespace. They will then deploy a CashService Custom Resource (CR) with the small amount of desired configuration for the service. CSOP will observe the creation of the CashService and create kubernetes resources including a Deployment, HorizontalPodAutoscaler, NetworkPolicy, Service, Secrets, and ConfigMaps. These resources will be owned and managed by CSOP to ensure the service always operates in the way CSOP describes.
