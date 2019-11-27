@@ -46,7 +46,7 @@ CSOP will allow service owners to create a small, secondary deployment that can 
 
 CSOP enables service owners to create a separate deployment that can be used to handle jobs created by the service.
 
-## Debug Containers
+## Debug Containers (Coming Soon)
 
 CSOP will enable service owners to easily add a container to the service pods that contains a number of tools that can be used to debug the service. NOTE: This will require a restart of the service.
 
