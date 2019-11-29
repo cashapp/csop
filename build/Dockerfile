@@ -1,11 +1,11 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 
-ENV OPERATOR=/usr/local/bin/cash-service-operator \
+ENV OPERATOR=/usr/local/bin/csop \
     USER_UID=1001 \
-    USER_NAME=cash-service-operator
+    USER_NAME=csop
 
 # install operator binary
-COPY build/_output/bin/cash-service-operator ${OPERATOR}
+COPY build/_output/bin/csop ${OPERATOR}
 
 COPY build/bin /usr/local/bin
 RUN  /usr/local/bin/user_setup
