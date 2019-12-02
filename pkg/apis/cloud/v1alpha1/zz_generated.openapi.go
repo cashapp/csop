@@ -67,8 +67,64 @@ func schema_pkg_apis_cloud_v1alpha1_CashServiceSpec(ref common.ReferenceCallback
 			SchemaProps: spec.SchemaProps{
 				Description: "CashServiceSpec defines the desired state of CashService",
 				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"labels": {
+						SchemaProps: spec.SchemaProps{
+							Description: "labels to be applied to all resources",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"container": {
+						SchemaProps: spec.SchemaProps{
+							Description: "container contains the configuration required to setup the container",
+							Ref:         ref("git.sqcorp.co/cash/cash-service-operator/pkg/apis/cloud/v1alpha1.CashServiceContainer"),
+						},
+					},
+					"autoscaling": {
+						SchemaProps: spec.SchemaProps{
+							Description: "autoscaling contains the configuration used to setup the horizontal pod autoscaler",
+							Ref:         ref("git.sqcorp.co/cash/cash-service-operator/pkg/apis/cloud/v1alpha1.CashServiceAutoscaling"),
+						},
+					},
+					"rollingUpdate": {
+						SchemaProps: spec.SchemaProps{
+							Description: "rollingUpdate specifies the behaviour of a rolling update of the service",
+							Ref:         ref("k8s.io/api/apps/v1.RollingUpdateDeployment"),
+						},
+					},
+					"environment": {
+						SchemaProps: spec.SchemaProps{
+							Description: "environment contains the environment variables that will be accessible to the service containers",
+							Ref:         ref("k8s.io/api/core/v1.ConfigMap"),
+						},
+					},
+					"networkPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "networkPolicy configures the acceptable sources and destinations of network traffic",
+							Ref:         ref("k8s.io/api/networking/v1.NetworkPolicy"),
+						},
+					},
+				},
+				Required: []string{"kind", "container", "autoscaling"},
 			},
 		},
+		Dependencies: []string{
+			"git.sqcorp.co/cash/cash-service-operator/pkg/apis/cloud/v1alpha1.CashServiceAutoscaling", "git.sqcorp.co/cash/cash-service-operator/pkg/apis/cloud/v1alpha1.CashServiceContainer", "k8s.io/api/apps/v1.RollingUpdateDeployment", "k8s.io/api/core/v1.ConfigMap", "k8s.io/api/networking/v1.NetworkPolicy"},
 	}
 }
 
@@ -78,7 +134,25 @@ func schema_pkg_apis_cloud_v1alpha1_CashServiceStatus(ref common.ReferenceCallba
 			SchemaProps: spec.SchemaProps{
 				Description: "CashServiceStatus defines the observed state of CashService",
 				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"deployments": {
+						SchemaProps: spec.SchemaProps{
+							Description: "deployments contains the status of each of the deployments managed by the CashService.",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/apps/v1.DeploymentStatus"),
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 		},
+		Dependencies: []string{
+			"k8s.io/api/apps/v1.DeploymentStatus"},
 	}
 }
