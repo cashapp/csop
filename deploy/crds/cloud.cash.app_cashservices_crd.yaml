@@ -30,9 +30,1146 @@ spec:
           type: object
         spec:
           description: CashServiceSpec defines the desired state of CashService
+          properties:
+            autoscaling:
+              description: autoscaling contains the configuration used to setup the
+                horizontal pod autoscaler
+              properties:
+                maxReplicas:
+                  description: maxReplicas is the upper limit for the number of replicas
+                    to which the autoscaler can scale up. It cannot be less that minReplicas.
+                  format: int32
+                  type: integer
+                metrics:
+                  description: metrics contains the specifications for which to use
+                    to calculate the desired replica count (the maximum replica count
+                    across all metrics will be used).  The desired replica count is
+                    calculated multiplying the ratio between the target value and
+                    the current value by the current number of pods.  Ergo, metrics
+                    used must decrease as the pod count is increased, and vice-versa.  See
+                    the individual metric source types for more information about
+                    how each type of metric must respond. If not set, the default
+                    metric will be set to 80% average CPU utilization.
+                  items:
+                    description: MetricSpec specifies how to scale based on a single
+                      metric (only `type` and one other matching field should be set
+                      at once).
+                    properties:
+                      external:
+                        description: external refers to a global metric that is not
+                          associated with any Kubernetes object. It allows autoscaling
+                          based on information coming from components running outside
+                          of cluster (for example length of queue in cloud messaging
+                          service, or QPS from loadbalancer running outside of cluster).
+                        properties:
+                          metric:
+                            description: metric identifies the target metric by name
+                              and selector
+                            properties:
+                              name:
+                                description: name is the name of the given metric
+                                type: string
+                              selector:
+                                description: selector is the string-encoded form of
+                                  a standard kubernetes label selector for the given
+                                  metric When set, it is passed as an additional parameter
+                                  to the metrics server for more specific metrics
+                                  scoping. When unset, just the metricName will be
+                                  used to gather metrics.
+                                properties:
+                                  matchExpressions:
+                                    description: matchExpressions is a list of label
+                                      selector requirements. The requirements are
+                                      ANDed.
+                                    items:
+                                      description: A label selector requirement is
+                                        a selector that contains values, a key, and
+                                        an operator that relates the key and values.
+                                      properties:
+                                        key:
+                                          description: key is the label key that the
+                                            selector applies to.
+                                          type: string
+                                        operator:
+                                          description: operator represents a key's
+                                            relationship to a set of values. Valid
+                                            operators are In, NotIn, Exists and DoesNotExist.
+                                          type: string
+                                        values:
+                                          description: values is an array of string
+                                            values. If the operator is In or NotIn,
+                                            the values array must be non-empty. If
+                                            the operator is Exists or DoesNotExist,
+                                            the values array must be empty. This array
+                                            is replaced during a strategic merge patch.
+                                          items:
+                                            type: string
+                                          type: array
+                                      required:
+                                      - key
+                                      - operator
+                                      type: object
+                                    type: array
+                                  matchLabels:
+                                    additionalProperties:
+                                      type: string
+                                    description: matchLabels is a map of {key,value}
+                                      pairs. A single {key,value} in the matchLabels
+                                      map is equivalent to an element of matchExpressions,
+                                      whose key field is "key", the operator is "In",
+                                      and the values array contains only "value".
+                                      The requirements are ANDed.
+                                    type: object
+                                type: object
+                            required:
+                            - name
+                            type: object
+                          target:
+                            description: target specifies the target value for the
+                              given metric
+                            properties:
+                              averageUtilization:
+                                description: averageUtilization is the target value
+                                  of the average of the resource metric across all
+                                  relevant pods, represented as a percentage of the
+                                  requested value of the resource for the pods. Currently
+                                  only valid for Resource metric source type
+                                format: int32
+                                type: integer
+                              averageValue:
+                                description: averageValue is the target value of the
+                                  average of the metric across all relevant pods (as
+                                  a quantity)
+                                type: string
+                              type:
+                                description: type represents whether the metric type
+                                  is Utilization, Value, or AverageValue
+                                type: string
+                              value:
+                                description: value is the target value of the metric
+                                  (as a quantity).
+                                type: string
+                            required:
+                            - type
+                            type: object
+                        required:
+                        - metric
+                        - target
+                        type: object
+                      object:
+                        description: object refers to a metric describing a single
+                          kubernetes object (for example, hits-per-second on an Ingress
+                          object).
+                        properties:
+                          describedObject:
+                            description: CrossVersionObjectReference contains enough
+                              information to let you identify the referred resource.
+                            properties:
+                              apiVersion:
+                                description: API version of the referent
+                                type: string
+                              kind:
+                                description: 'Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds"'
+                                type: string
+                              name:
+                                description: 'Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names'
+                                type: string
+                            required:
+                            - kind
+                            - name
+                            type: object
+                          metric:
+                            description: metric identifies the target metric by name
+                              and selector
+                            properties:
+                              name:
+                                description: name is the name of the given metric
+                                type: string
+                              selector:
+                                description: selector is the string-encoded form of
+                                  a standard kubernetes label selector for the given
+                                  metric When set, it is passed as an additional parameter
+                                  to the metrics server for more specific metrics
+                                  scoping. When unset, just the metricName will be
+                                  used to gather metrics.
+                                properties:
+                                  matchExpressions:
+                                    description: matchExpressions is a list of label
+                                      selector requirements. The requirements are
+                                      ANDed.
+                                    items:
+                                      description: A label selector requirement is
+                                        a selector that contains values, a key, and
+                                        an operator that relates the key and values.
+                                      properties:
+                                        key:
+                                          description: key is the label key that the
+                                            selector applies to.
+                                          type: string
+                                        operator:
+                                          description: operator represents a key's
+                                            relationship to a set of values. Valid
+                                            operators are In, NotIn, Exists and DoesNotExist.
+                                          type: string
+                                        values:
+                                          description: values is an array of string
+                                            values. If the operator is In or NotIn,
+                                            the values array must be non-empty. If
+                                            the operator is Exists or DoesNotExist,
+                                            the values array must be empty. This array
+                                            is replaced during a strategic merge patch.
+                                          items:
+                                            type: string
+                                          type: array
+                                      required:
+                                      - key
+                                      - operator
+                                      type: object
+                                    type: array
+                                  matchLabels:
+                                    additionalProperties:
+                                      type: string
+                                    description: matchLabels is a map of {key,value}
+                                      pairs. A single {key,value} in the matchLabels
+                                      map is equivalent to an element of matchExpressions,
+                                      whose key field is "key", the operator is "In",
+                                      and the values array contains only "value".
+                                      The requirements are ANDed.
+                                    type: object
+                                type: object
+                            required:
+                            - name
+                            type: object
+                          target:
+                            description: target specifies the target value for the
+                              given metric
+                            properties:
+                              averageUtilization:
+                                description: averageUtilization is the target value
+                                  of the average of the resource metric across all
+                                  relevant pods, represented as a percentage of the
+                                  requested value of the resource for the pods. Currently
+                                  only valid for Resource metric source type
+                                format: int32
+                                type: integer
+                              averageValue:
+                                description: averageValue is the target value of the
+                                  average of the metric across all relevant pods (as
+                                  a quantity)
+                                type: string
+                              type:
+                                description: type represents whether the metric type
+                                  is Utilization, Value, or AverageValue
+                                type: string
+                              value:
+                                description: value is the target value of the metric
+                                  (as a quantity).
+                                type: string
+                            required:
+                            - type
+                            type: object
+                        required:
+                        - describedObject
+                        - metric
+                        - target
+                        type: object
+                      pods:
+                        description: pods refers to a metric describing each pod in
+                          the current scale target (for example, transactions-processed-per-second).  The
+                          values will be averaged together before being compared to
+                          the target value.
+                        properties:
+                          metric:
+                            description: metric identifies the target metric by name
+                              and selector
+                            properties:
+                              name:
+                                description: name is the name of the given metric
+                                type: string
+                              selector:
+                                description: selector is the string-encoded form of
+                                  a standard kubernetes label selector for the given
+                                  metric When set, it is passed as an additional parameter
+                                  to the metrics server for more specific metrics
+                                  scoping. When unset, just the metricName will be
+                                  used to gather metrics.
+                                properties:
+                                  matchExpressions:
+                                    description: matchExpressions is a list of label
+                                      selector requirements. The requirements are
+                                      ANDed.
+                                    items:
+                                      description: A label selector requirement is
+                                        a selector that contains values, a key, and
+                                        an operator that relates the key and values.
+                                      properties:
+                                        key:
+                                          description: key is the label key that the
+                                            selector applies to.
+                                          type: string
+                                        operator:
+                                          description: operator represents a key's
+                                            relationship to a set of values. Valid
+                                            operators are In, NotIn, Exists and DoesNotExist.
+                                          type: string
+                                        values:
+                                          description: values is an array of string
+                                            values. If the operator is In or NotIn,
+                                            the values array must be non-empty. If
+                                            the operator is Exists or DoesNotExist,
+                                            the values array must be empty. This array
+                                            is replaced during a strategic merge patch.
+                                          items:
+                                            type: string
+                                          type: array
+                                      required:
+                                      - key
+                                      - operator
+                                      type: object
+                                    type: array
+                                  matchLabels:
+                                    additionalProperties:
+                                      type: string
+                                    description: matchLabels is a map of {key,value}
+                                      pairs. A single {key,value} in the matchLabels
+                                      map is equivalent to an element of matchExpressions,
+                                      whose key field is "key", the operator is "In",
+                                      and the values array contains only "value".
+                                      The requirements are ANDed.
+                                    type: object
+                                type: object
+                            required:
+                            - name
+                            type: object
+                          target:
+                            description: target specifies the target value for the
+                              given metric
+                            properties:
+                              averageUtilization:
+                                description: averageUtilization is the target value
+                                  of the average of the resource metric across all
+                                  relevant pods, represented as a percentage of the
+                                  requested value of the resource for the pods. Currently
+                                  only valid for Resource metric source type
+                                format: int32
+                                type: integer
+                              averageValue:
+                                description: averageValue is the target value of the
+                                  average of the metric across all relevant pods (as
+                                  a quantity)
+                                type: string
+                              type:
+                                description: type represents whether the metric type
+                                  is Utilization, Value, or AverageValue
+                                type: string
+                              value:
+                                description: value is the target value of the metric
+                                  (as a quantity).
+                                type: string
+                            required:
+                            - type
+                            type: object
+                        required:
+                        - metric
+                        - target
+                        type: object
+                      resource:
+                        description: resource refers to a resource metric (such as
+                          those specified in requests and limits) known to Kubernetes
+                          describing each pod in the current scale target (e.g. CPU
+                          or memory). Such metrics are built in to Kubernetes, and
+                          have special scaling options on top of those available to
+                          normal per-pod metrics using the "pods" source.
+                        properties:
+                          name:
+                            description: name is the name of the resource in question.
+                            type: string
+                          target:
+                            description: target specifies the target value for the
+                              given metric
+                            properties:
+                              averageUtilization:
+                                description: averageUtilization is the target value
+                                  of the average of the resource metric across all
+                                  relevant pods, represented as a percentage of the
+                                  requested value of the resource for the pods. Currently
+                                  only valid for Resource metric source type
+                                format: int32
+                                type: integer
+                              averageValue:
+                                description: averageValue is the target value of the
+                                  average of the metric across all relevant pods (as
+                                  a quantity)
+                                type: string
+                              type:
+                                description: type represents whether the metric type
+                                  is Utilization, Value, or AverageValue
+                                type: string
+                              value:
+                                description: value is the target value of the metric
+                                  (as a quantity).
+                                type: string
+                            required:
+                            - type
+                            type: object
+                        required:
+                        - name
+                        - target
+                        type: object
+                      type:
+                        description: type is the type of metric source.  It should
+                          be one of "Object", "Pods" or "Resource", each mapping to
+                          a matching field in the object.
+                        type: string
+                    required:
+                    - type
+                    type: object
+                  type: array
+                minReplicas:
+                  description: minReplicas is the lower limit for the number of replicas
+                    to which the autoscaler can scale down.  It defaults to 1 pod.
+                  format: int32
+                  minimum: 1
+                  type: integer
+              required:
+              - maxReplicas
+              type: object
+            container:
+              description: container contains the configuration required to setup
+                the container
+              properties:
+                debug:
+                  description: debug contains the configuration related to the deployment
+                    of a debug container in the pod.
+                  properties:
+                    enabled:
+                      description: enabled indicates whether a debug container should
+                        be included within the pod.
+                      type: boolean
+                    imageURL:
+                      description: imageURL specifes the image to deploy in the debug
+                        container.
+                      type: string
+                  type: object
+                deployment:
+                  description: deployment contains the configuration required to deploy
+                    an image to the service container.
+                  properties:
+                    automatic:
+                      description: automatic contains the configuration required to
+                        automatically deploy the most recent image from a docker repository.
+                      properties:
+                        repository:
+                          description: respository specifies a url to the respository
+                            from which the most recent image should be pulled.
+                          type: string
+                      required:
+                      - repository
+                      type: object
+                    manual:
+                      description: manual contains the configuration required to manually
+                        deploy a service using an image URL.
+                      properties:
+                        imageURL:
+                          description: ' imageURL specifies the image to deploy in
+                            the service container.'
+                          type: string
+                      required:
+                      - imageURL
+                      type: object
+                    mode:
+                      enum:
+                      - Manual
+                      - Automatic
+                      type: string
+                  required:
+                  - mode
+                  type: object
+                resources:
+                  description: resouces contains the resource requests and limits
+                    to be applied to the service container.
+                  properties:
+                    limits:
+                      additionalProperties:
+                        type: string
+                      description: 'Limits describes the maximum amount of compute
+                        resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                    requests:
+                      additionalProperties:
+                        type: string
+                      description: 'Requests describes the minimum amount of compute
+                        resources required. If Requests is omitted for a container,
+                        it defaults to Limits if that is explicitly specified, otherwise
+                        to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                  type: object
+              required:
+              - deployment
+              type: object
+            environment:
+              description: environment contains the environment variables that will
+                be accessible to the service containers
+              properties:
+                apiVersion:
+                  description: 'APIVersion defines the versioned schema of this representation
+                    of an object. Servers should convert recognized schemas to the
+                    latest internal value, and may reject unrecognized values. More
+                    info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources'
+                  type: string
+                binaryData:
+                  additionalProperties:
+                    format: byte
+                    type: string
+                  description: BinaryData contains the binary data. Each key must
+                    consist of alphanumeric characters, '-', '_' or '.'. BinaryData
+                    can contain byte sequences that are not in the UTF-8 range. The
+                    keys stored in BinaryData must not overlap with the ones in the
+                    Data field, this is enforced during validation process. Using
+                    this field will require 1.10+ apiserver and kubelet.
+                  type: object
+                data:
+                  additionalProperties:
+                    type: string
+                  description: Data contains the configuration data. Each key must
+                    consist of alphanumeric characters, '-', '_' or '.'. Values with
+                    non-UTF-8 byte sequences must use the BinaryData field. The keys
+                    stored in Data must not overlap with the keys in the BinaryData
+                    field, this is enforced during validation process.
+                  type: object
+                kind:
+                  description: 'Kind is a string value representing the REST resource
+                    this object represents. Servers may infer this from the endpoint
+                    the client submits requests to. Cannot be updated. In CamelCase.
+                    More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds'
+                  type: string
+                metadata:
+                  description: 'Standard object''s metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata'
+                  type: object
+              type: object
+            kind:
+              enum:
+              - Standard
+              - Jobs
+              type: string
+            labels:
+              additionalProperties:
+                type: string
+              description: labels to be applied to all resources
+              type: object
+            networkPolicy:
+              description: networkPolicy configures the acceptable sources and destinations
+                of network traffic
+              properties:
+                apiVersion:
+                  description: 'APIVersion defines the versioned schema of this representation
+                    of an object. Servers should convert recognized schemas to the
+                    latest internal value, and may reject unrecognized values. More
+                    info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources'
+                  type: string
+                kind:
+                  description: 'Kind is a string value representing the REST resource
+                    this object represents. Servers may infer this from the endpoint
+                    the client submits requests to. Cannot be updated. In CamelCase.
+                    More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds'
+                  type: string
+                metadata:
+                  description: 'Standard object''s metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
+                  type: object
+                spec:
+                  description: Specification of the desired behavior for this NetworkPolicy.
+                  properties:
+                    egress:
+                      description: List of egress rules to be applied to the selected
+                        pods. Outgoing traffic is allowed if there are no NetworkPolicies
+                        selecting the pod (and cluster policy otherwise allows the
+                        traffic), OR if the traffic matches at least one egress rule
+                        across all of the NetworkPolicy objects whose podSelector
+                        matches the pod. If this field is empty then this NetworkPolicy
+                        limits all outgoing traffic (and serves solely to ensure that
+                        the pods it selects are isolated by default). This field is
+                        beta-level in 1.8
+                      items:
+                        description: NetworkPolicyEgressRule describes a particular
+                          set of traffic that is allowed out of pods matched by a
+                          NetworkPolicySpec's podSelector. The traffic must match
+                          both ports and to. This type is beta-level in 1.8
+                        properties:
+                          ports:
+                            description: List of destination ports for outgoing traffic.
+                              Each item in this list is combined using a logical OR.
+                              If this field is empty or missing, this rule matches
+                              all ports (traffic not restricted by port). If this
+                              field is present and contains at least one item, then
+                              this rule allows traffic only if the traffic matches
+                              at least one port in the list.
+                            items:
+                              description: NetworkPolicyPort describes a port to allow
+                                traffic on
+                              properties:
+                                port:
+                                  anyOf:
+                                  - type: string
+                                  - type: integer
+                                  description: The port on the given protocol. This
+                                    can either be a numerical or named port on a pod.
+                                    If this field is not provided, this matches all
+                                    port names and numbers.
+                                protocol:
+                                  description: The protocol (TCP, UDP, or SCTP) which
+                                    traffic must match. If not specified, this field
+                                    defaults to TCP.
+                                  type: string
+                              type: object
+                            type: array
+                          to:
+                            description: List of destinations for outgoing traffic
+                              of pods selected for this rule. Items in this list are
+                              combined using a logical OR operation. If this field
+                              is empty or missing, this rule matches all destinations
+                              (traffic not restricted by destination). If this field
+                              is present and contains at least one item, this rule
+                              allows traffic only if the traffic matches at least
+                              one item in the to list.
+                            items:
+                              description: NetworkPolicyPeer describes a peer to allow
+                                traffic from. Only certain combinations of fields
+                                are allowed
+                              properties:
+                                ipBlock:
+                                  description: IPBlock defines policy on a particular
+                                    IPBlock. If this field is set then neither of
+                                    the other fields can be.
+                                  properties:
+                                    cidr:
+                                      description: CIDR is a string representing the
+                                        IP Block Valid examples are "192.168.1.1/24"
+                                      type: string
+                                    except:
+                                      description: Except is a slice of CIDRs that
+                                        should not be included within an IP Block
+                                        Valid examples are "192.168.1.1/24" Except
+                                        values will be rejected if they are outside
+                                        the CIDR range
+                                      items:
+                                        type: string
+                                      type: array
+                                  required:
+                                  - cidr
+                                  type: object
+                                namespaceSelector:
+                                  description: "Selects Namespaces using cluster-scoped
+                                    labels. This field follows standard label selector
+                                    semantics; if present but empty, it selects all
+                                    namespaces. \n If PodSelector is also set, then
+                                    the NetworkPolicyPeer as a whole selects the Pods
+                                    matching PodSelector in the Namespaces selected
+                                    by NamespaceSelector. Otherwise it selects all
+                                    Pods in the Namespaces selected by NamespaceSelector."
+                                  properties:
+                                    matchExpressions:
+                                      description: matchExpressions is a list of label
+                                        selector requirements. The requirements are
+                                        ANDed.
+                                      items:
+                                        description: A label selector requirement
+                                          is a selector that contains values, a key,
+                                          and an operator that relates the key and
+                                          values.
+                                        properties:
+                                          key:
+                                            description: key is the label key that
+                                              the selector applies to.
+                                            type: string
+                                          operator:
+                                            description: operator represents a key's
+                                              relationship to a set of values. Valid
+                                              operators are In, NotIn, Exists and
+                                              DoesNotExist.
+                                            type: string
+                                          values:
+                                            description: values is an array of string
+                                              values. If the operator is In or NotIn,
+                                              the values array must be non-empty.
+                                              If the operator is Exists or DoesNotExist,
+                                              the values array must be empty. This
+                                              array is replaced during a strategic
+                                              merge patch.
+                                            items:
+                                              type: string
+                                            type: array
+                                        required:
+                                        - key
+                                        - operator
+                                        type: object
+                                      type: array
+                                    matchLabels:
+                                      additionalProperties:
+                                        type: string
+                                      description: matchLabels is a map of {key,value}
+                                        pairs. A single {key,value} in the matchLabels
+                                        map is equivalent to an element of matchExpressions,
+                                        whose key field is "key", the operator is
+                                        "In", and the values array contains only "value".
+                                        The requirements are ANDed.
+                                      type: object
+                                  type: object
+                                podSelector:
+                                  description: "This is a label selector which selects
+                                    Pods. This field follows standard label selector
+                                    semantics; if present but empty, it selects all
+                                    pods. \n If NamespaceSelector is also set, then
+                                    the NetworkPolicyPeer as a whole selects the Pods
+                                    matching PodSelector in the Namespaces selected
+                                    by NamespaceSelector. Otherwise it selects the
+                                    Pods matching PodSelector in the policy's own
+                                    Namespace."
+                                  properties:
+                                    matchExpressions:
+                                      description: matchExpressions is a list of label
+                                        selector requirements. The requirements are
+                                        ANDed.
+                                      items:
+                                        description: A label selector requirement
+                                          is a selector that contains values, a key,
+                                          and an operator that relates the key and
+                                          values.
+                                        properties:
+                                          key:
+                                            description: key is the label key that
+                                              the selector applies to.
+                                            type: string
+                                          operator:
+                                            description: operator represents a key's
+                                              relationship to a set of values. Valid
+                                              operators are In, NotIn, Exists and
+                                              DoesNotExist.
+                                            type: string
+                                          values:
+                                            description: values is an array of string
+                                              values. If the operator is In or NotIn,
+                                              the values array must be non-empty.
+                                              If the operator is Exists or DoesNotExist,
+                                              the values array must be empty. This
+                                              array is replaced during a strategic
+                                              merge patch.
+                                            items:
+                                              type: string
+                                            type: array
+                                        required:
+                                        - key
+                                        - operator
+                                        type: object
+                                      type: array
+                                    matchLabels:
+                                      additionalProperties:
+                                        type: string
+                                      description: matchLabels is a map of {key,value}
+                                        pairs. A single {key,value} in the matchLabels
+                                        map is equivalent to an element of matchExpressions,
+                                        whose key field is "key", the operator is
+                                        "In", and the values array contains only "value".
+                                        The requirements are ANDed.
+                                      type: object
+                                  type: object
+                              type: object
+                            type: array
+                        type: object
+                      type: array
+                    ingress:
+                      description: List of ingress rules to be applied to the selected
+                        pods. Traffic is allowed to a pod if there are no NetworkPolicies
+                        selecting the pod (and cluster policy otherwise allows the
+                        traffic), OR if the traffic source is the pod's local node,
+                        OR if the traffic matches at least one ingress rule across
+                        all of the NetworkPolicy objects whose podSelector matches
+                        the pod. If this field is empty then this NetworkPolicy does
+                        not allow any traffic (and serves solely to ensure that the
+                        pods it selects are isolated by default)
+                      items:
+                        description: NetworkPolicyIngressRule describes a particular
+                          set of traffic that is allowed to the pods matched by a
+                          NetworkPolicySpec's podSelector. The traffic must match
+                          both ports and from.
+                        properties:
+                          from:
+                            description: List of sources which should be able to access
+                              the pods selected for this rule. Items in this list
+                              are combined using a logical OR operation. If this field
+                              is empty or missing, this rule matches all sources (traffic
+                              not restricted by source). If this field is present
+                              and contains at least on item, this rule allows traffic
+                              only if the traffic matches at least one item in the
+                              from list.
+                            items:
+                              description: NetworkPolicyPeer describes a peer to allow
+                                traffic from. Only certain combinations of fields
+                                are allowed
+                              properties:
+                                ipBlock:
+                                  description: IPBlock defines policy on a particular
+                                    IPBlock. If this field is set then neither of
+                                    the other fields can be.
+                                  properties:
+                                    cidr:
+                                      description: CIDR is a string representing the
+                                        IP Block Valid examples are "192.168.1.1/24"
+                                      type: string
+                                    except:
+                                      description: Except is a slice of CIDRs that
+                                        should not be included within an IP Block
+                                        Valid examples are "192.168.1.1/24" Except
+                                        values will be rejected if they are outside
+                                        the CIDR range
+                                      items:
+                                        type: string
+                                      type: array
+                                  required:
+                                  - cidr
+                                  type: object
+                                namespaceSelector:
+                                  description: "Selects Namespaces using cluster-scoped
+                                    labels. This field follows standard label selector
+                                    semantics; if present but empty, it selects all
+                                    namespaces. \n If PodSelector is also set, then
+                                    the NetworkPolicyPeer as a whole selects the Pods
+                                    matching PodSelector in the Namespaces selected
+                                    by NamespaceSelector. Otherwise it selects all
+                                    Pods in the Namespaces selected by NamespaceSelector."
+                                  properties:
+                                    matchExpressions:
+                                      description: matchExpressions is a list of label
+                                        selector requirements. The requirements are
+                                        ANDed.
+                                      items:
+                                        description: A label selector requirement
+                                          is a selector that contains values, a key,
+                                          and an operator that relates the key and
+                                          values.
+                                        properties:
+                                          key:
+                                            description: key is the label key that
+                                              the selector applies to.
+                                            type: string
+                                          operator:
+                                            description: operator represents a key's
+                                              relationship to a set of values. Valid
+                                              operators are In, NotIn, Exists and
+                                              DoesNotExist.
+                                            type: string
+                                          values:
+                                            description: values is an array of string
+                                              values. If the operator is In or NotIn,
+                                              the values array must be non-empty.
+                                              If the operator is Exists or DoesNotExist,
+                                              the values array must be empty. This
+                                              array is replaced during a strategic
+                                              merge patch.
+                                            items:
+                                              type: string
+                                            type: array
+                                        required:
+                                        - key
+                                        - operator
+                                        type: object
+                                      type: array
+                                    matchLabels:
+                                      additionalProperties:
+                                        type: string
+                                      description: matchLabels is a map of {key,value}
+                                        pairs. A single {key,value} in the matchLabels
+                                        map is equivalent to an element of matchExpressions,
+                                        whose key field is "key", the operator is
+                                        "In", and the values array contains only "value".
+                                        The requirements are ANDed.
+                                      type: object
+                                  type: object
+                                podSelector:
+                                  description: "This is a label selector which selects
+                                    Pods. This field follows standard label selector
+                                    semantics; if present but empty, it selects all
+                                    pods. \n If NamespaceSelector is also set, then
+                                    the NetworkPolicyPeer as a whole selects the Pods
+                                    matching PodSelector in the Namespaces selected
+                                    by NamespaceSelector. Otherwise it selects the
+                                    Pods matching PodSelector in the policy's own
+                                    Namespace."
+                                  properties:
+                                    matchExpressions:
+                                      description: matchExpressions is a list of label
+                                        selector requirements. The requirements are
+                                        ANDed.
+                                      items:
+                                        description: A label selector requirement
+                                          is a selector that contains values, a key,
+                                          and an operator that relates the key and
+                                          values.
+                                        properties:
+                                          key:
+                                            description: key is the label key that
+                                              the selector applies to.
+                                            type: string
+                                          operator:
+                                            description: operator represents a key's
+                                              relationship to a set of values. Valid
+                                              operators are In, NotIn, Exists and
+                                              DoesNotExist.
+                                            type: string
+                                          values:
+                                            description: values is an array of string
+                                              values. If the operator is In or NotIn,
+                                              the values array must be non-empty.
+                                              If the operator is Exists or DoesNotExist,
+                                              the values array must be empty. This
+                                              array is replaced during a strategic
+                                              merge patch.
+                                            items:
+                                              type: string
+                                            type: array
+                                        required:
+                                        - key
+                                        - operator
+                                        type: object
+                                      type: array
+                                    matchLabels:
+                                      additionalProperties:
+                                        type: string
+                                      description: matchLabels is a map of {key,value}
+                                        pairs. A single {key,value} in the matchLabels
+                                        map is equivalent to an element of matchExpressions,
+                                        whose key field is "key", the operator is
+                                        "In", and the values array contains only "value".
+                                        The requirements are ANDed.
+                                      type: object
+                                  type: object
+                              type: object
+                            type: array
+                          ports:
+                            description: List of ports which should be made accessible
+                              on the pods selected for this rule. Each item in this
+                              list is combined using a logical OR. If this field is
+                              empty or missing, this rule matches all ports (traffic
+                              not restricted by port). If this field is present and
+                              contains at least one item, then this rule allows traffic
+                              only if the traffic matches at least one port in the
+                              list.
+                            items:
+                              description: NetworkPolicyPort describes a port to allow
+                                traffic on
+                              properties:
+                                port:
+                                  anyOf:
+                                  - type: string
+                                  - type: integer
+                                  description: The port on the given protocol. This
+                                    can either be a numerical or named port on a pod.
+                                    If this field is not provided, this matches all
+                                    port names and numbers.
+                                protocol:
+                                  description: The protocol (TCP, UDP, or SCTP) which
+                                    traffic must match. If not specified, this field
+                                    defaults to TCP.
+                                  type: string
+                              type: object
+                            type: array
+                        type: object
+                      type: array
+                    podSelector:
+                      description: Selects the pods to which this NetworkPolicy object
+                        applies. The array of ingress rules is applied to any pods
+                        selected by this field. Multiple network policies can select
+                        the same set of pods. In this case, the ingress rules for
+                        each are combined additively. This field is NOT optional and
+                        follows standard label selector semantics. An empty podSelector
+                        matches all pods in this namespace.
+                      properties:
+                        matchExpressions:
+                          description: matchExpressions is a list of label selector
+                            requirements. The requirements are ANDed.
+                          items:
+                            description: A label selector requirement is a selector
+                              that contains values, a key, and an operator that relates
+                              the key and values.
+                            properties:
+                              key:
+                                description: key is the label key that the selector
+                                  applies to.
+                                type: string
+                              operator:
+                                description: operator represents a key's relationship
+                                  to a set of values. Valid operators are In, NotIn,
+                                  Exists and DoesNotExist.
+                                type: string
+                              values:
+                                description: values is an array of string values.
+                                  If the operator is In or NotIn, the values array
+                                  must be non-empty. If the operator is Exists or
+                                  DoesNotExist, the values array must be empty. This
+                                  array is replaced during a strategic merge patch.
+                                items:
+                                  type: string
+                                type: array
+                            required:
+                            - key
+                            - operator
+                            type: object
+                          type: array
+                        matchLabels:
+                          additionalProperties:
+                            type: string
+                          description: matchLabels is a map of {key,value} pairs.
+                            A single {key,value} in the matchLabels map is equivalent
+                            to an element of matchExpressions, whose key field is
+                            "key", the operator is "In", and the values array contains
+                            only "value". The requirements are ANDed.
+                          type: object
+                      type: object
+                    policyTypes:
+                      description: List of rule types that the NetworkPolicy relates
+                        to. Valid options are "Ingress", "Egress", or "Ingress,Egress".
+                        If this field is not specified, it will default based on the
+                        existence of Ingress or Egress rules; policies that contain
+                        an Egress section are assumed to affect Egress, and all policies
+                        (whether or not they contain an Ingress section) are assumed
+                        to affect Ingress. If you want to write an egress-only policy,
+                        you must explicitly specify policyTypes [ "Egress" ]. Likewise,
+                        if you want to write a policy that specifies that no egress
+                        is allowed, you must specify a policyTypes value that include
+                        "Egress" (since such a policy would not include an Egress
+                        section and would otherwise default to just [ "Ingress" ]).
+                        This field is beta-level in 1.8
+                      items:
+                        description: Policy Type string describes the NetworkPolicy
+                          type This type is beta-level in 1.8
+                        type: string
+                      type: array
+                  required:
+                  - podSelector
+                  type: object
+              type: object
+            rollingUpdate:
+              description: rollingUpdate specifies the behaviour of a rolling update
+                of the service
+              properties:
+                maxSurge:
+                  anyOf:
+                  - type: string
+                  - type: integer
+                  description: 'The maximum number of pods that can be scheduled above
+                    the desired number of pods. Value can be an absolute number (ex:
+                    5) or a percentage of desired pods (ex: 10%). This can not be
+                    0 if MaxUnavailable is 0. Absolute number is calculated from percentage
+                    by rounding up. Defaults to 25%. Example: when this is set to
+                    30%, the new ReplicaSet can be scaled up immediately when the
+                    rolling update starts, such that the total number of old and new
+                    pods do not exceed 130% of desired pods. Once old pods have been
+                    killed, new ReplicaSet can be scaled up further, ensuring that
+                    total number of pods running at any time during the update is
+                    at most 130% of desired pods.'
+                maxUnavailable:
+                  anyOf:
+                  - type: string
+                  - type: integer
+                  description: 'The maximum number of pods that can be unavailable
+                    during the update. Value can be an absolute number (ex: 5) or
+                    a percentage of desired pods (ex: 10%). Absolute number is calculated
+                    from percentage by rounding down. This can not be 0 if MaxSurge
+                    is 0. Defaults to 25%. Example: when this is set to 30%, the old
+                    ReplicaSet can be scaled down to 70% of desired pods immediately
+                    when the rolling update starts. Once new pods are ready, old ReplicaSet
+                    can be scaled down further, followed by scaling up the new ReplicaSet,
+                    ensuring that the total number of pods available at all times
+                    during the update is at least 70% of desired pods.'
+              type: object
+          required:
+          - autoscaling
+          - container
+          - kind
           type: object
         status:
           description: CashServiceStatus defines the observed state of CashService
+          properties:
+            deployments:
+              additionalProperties:
+                description: DeploymentStatus is the most recently observed status
+                  of the Deployment.
+                properties:
+                  availableReplicas:
+                    description: Total number of available pods (ready for at least
+                      minReadySeconds) targeted by this deployment.
+                    format: int32
+                    type: integer
+                  collisionCount:
+                    description: Count of hash collisions for the Deployment. The
+                      Deployment controller uses this field as a collision avoidance
+                      mechanism when it needs to create the name for the newest ReplicaSet.
+                    format: int32
+                    type: integer
+                  conditions:
+                    description: Represents the latest available observations of a
+                      deployment's current state.
+                    items:
+                      description: DeploymentCondition describes the state of a deployment
+                        at a certain point.
+                      properties:
+                        lastTransitionTime:
+                          description: Last time the condition transitioned from one
+                            status to another.
+                          format: date-time
+                          type: string
+                        lastUpdateTime:
+                          description: The last time this condition was updated.
+                          format: date-time
+                          type: string
+                        message:
+                          description: A human readable message indicating details
+                            about the transition.
+                          type: string
+                        reason:
+                          description: The reason for the condition's last transition.
+                          type: string
+                        status:
+                          description: Status of the condition, one of True, False,
+                            Unknown.
+                          type: string
+                        type:
+                          description: Type of deployment condition.
+                          type: string
+                      required:
+                      - status
+                      - type
+                      type: object
+                    type: array
+                  observedGeneration:
+                    description: The generation observed by the deployment controller.
+                    format: int64
+                    type: integer
+                  readyReplicas:
+                    description: Total number of ready pods targeted by this deployment.
+                    format: int32
+                    type: integer
+                  replicas:
+                    description: Total number of non-terminated pods targeted by this
+                      deployment (their labels match the selector).
+                    format: int32
+                    type: integer
+                  unavailableReplicas:
+                    description: Total number of unavailable pods targeted by this
+                      deployment. This is the total number of pods that are still
+                      required for the deployment to have 100% available capacity.
+                      They may either be pods that are running but not yet available
+                      or pods that still have not been created.
+                    format: int32
+                    type: integer
+                  updatedReplicas:
+                    description: Total number of non-terminated pods targeted by this
+                      deployment that have the desired template spec.
+                    format: int32
+                    type: integer
+                type: object
+              description: deployments contains the status of each of the deployments
+                managed by the CashService.
+              type: object
           type: object
       type: object
   version: v1alpha1
