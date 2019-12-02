@@ -1,0 +1,7 @@
+apiVersion: cloud.cash.app/v1alpha1
+kind: CashService
+metadata:
+  name: example-cashservice
+spec:
+  # Add fields here
+  size: 3
