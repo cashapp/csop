@@ -1,0 +1,28 @@
+name: Check
+on: [push]
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+   
+    - name: Download operator-sdk
+      run: curl -L https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu -o operator-sdk; chmod 744 operator-sdk
+      env:
+        RELEASE_VERSION: v0.12.0
+
+    - name: Build
+      run: export GIT_COMMIT=${GIT_COMMIT:-$(git rev-parse --short HEAD)}; export DOCKER_TAG=${APP_NAME}:${GIT_COMMIT}; ./operator-sdk build ${DOCKER_TAG} --verbose --image-build-args="--build-arg SERVICE=\"${APP_NAME}\" --build-arg GIT_COMMIT=\"${GIT_COMMIT}\""
+      env:
+        APP_NAME: csop
+        
