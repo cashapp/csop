@@ -1,5 +1,7 @@
 # Cash Service OPerator
 
+**Note this repo is under active heavy development and is not yet alpha**
+
 The Cash Service OPerator (CSOP) is a Kubernetes operator that codifies the operational knowledge required to run a "service"  in a Kubernetes cluster.
 
 CSOP uses CRDs to allow service owners to easily deploy a service that conforms to the [container contract specified by CSOP](https://github.com/cashapp/csop/blob/master/README.md#container-contract). The resources created by CSOP will be configured with sane defaults that emphasize security. CSOP provides the following features:
