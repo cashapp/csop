@@ -6,7 +6,7 @@ lint:
 	golangci-lint run -c ./.golangci.yml
 
 test:
-	go test ./...
+	go test -mod=vendor ./...
 
 integration-test:
 	operator-sdk test local
