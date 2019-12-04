@@ -32,6 +32,8 @@ type CashServiceSpec struct {
 	NetworkPolicy netv1.NetworkPolicy `json:"networkPolicy,omitempty"`
 }
 
+// CashServiceAutoscaling contains the configuration used to setup a horizontal
+// pod autoscaler for the CashService
 type CashServiceAutoscaling struct {
 	// minReplicas is the lower limit for the number of replicas to which the
 	// autoscaler can scale down.  It defaults to 1 pod.
@@ -55,6 +57,8 @@ type CashServiceAutoscaling struct {
 	Metrics []autoscaling.MetricSpec `json:"metrics,omitempty"`
 }
 
+// CashServiceContainer contains the configuration used to deploy a container
+// in the CashService pod
 type CashServiceContainer struct {
 	// deployment contains the configuration required to deploy an image to the
 	// service container.
@@ -67,6 +71,8 @@ type CashServiceContainer struct {
 	Debug CashServiceDebug `json:"debug,omitempty"`
 }
 
+// CashServiceDeployment contains the configuration used to determiner how to
+// deploy an image in a CashService container
 type CashServiceDeployment struct {
 	// +kubebuilder:validation:Enum=Manual;Automatic
 	// +kubebuilder:Default=Manual
@@ -81,17 +87,24 @@ type CashServiceDeployment struct {
 	Automatic CashServiceAutomaticDeployment `json:"automatic,omitempty"`
 }
 
+// CashServiceManualDeployment contains the configuration used to deploy a
+// specific image in the CashService container
 type CashServiceManualDeployment struct {
 	//  imageURL specifies the image to deploy in the service container.
 	ImageURL string `json:"imageURL"`
 }
 
+// CashServiceAutomaticDeployment contains the configuration used to
+// automatically deploy the latest image from a specified repository in the
+// CashService container
 type CashServiceAutomaticDeployment struct {
-	// respository specifies a url to the respository from which the most
+	// repository specifies a url to the repository from which the most
 	// recent image should be pulled.
 	Repository string `json:"repository"`
 }
 
+// CashServiceDebug contains the configuration required to enable debugging of
+// the CashService pods
 type CashServiceDebug struct {
 	// enabled indicates whether a debug container should be included within
 	// the pod.

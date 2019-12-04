@@ -1,8 +1,8 @@
-name: Build
+name: Unit Tests
 on: [push]
 jobs:
   build:
-    name: Build
+    name: unit-tests
     runs-on: ubuntu-latest
     steps:
     - name: Check out code into the Go module directory
@@ -11,5 +11,5 @@ jobs:
     - name: Set up environment
       run: . build/setup_env
 
-    - name: Build
-      run: . build/setup_env; make image
+    - name: Test
+      run: . build/setup_env; make test
