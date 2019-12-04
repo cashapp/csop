@@ -34,7 +34,7 @@ OPERATOR_SDK=${TOOL_CACHE}/bin/operator-sdk
 if [ ! -e ${OPERATOR_SDK} ]; then
   echo "Installing operator-sdk $OPERATOR_SDK_VERSION"
 
-  [[ $ARCH = "darwin" ]] && OPERATOR_SDK_OS=apple-darwin || OPERATOR_SDK_VERSION=linux-gnu
+  [[ $ARCH = "darwin" ]] && OPERATOR_SDK_OS=apple-darwin || OPERATOR_SDK_OS=linux-gnu
   curl -sL https://github.com/operator-framework/operator-sdk/releases/download/${OPERATOR_SDK_VERSION}/operator-sdk-${OPERATOR_SDK_VERSION}-x86_64-${OPERATOR_SDK_OS} -o ${OPERATOR_SDK}
   chmod 744 ${OPERATOR_SDK}
 fi
