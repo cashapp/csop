@@ -11,5 +11,5 @@ jobs:
     - name: Set up environment
       run: . build/setup_env
 
-    - name: Build
+    - name: Lint
       run: . build/setup_env; make lint
