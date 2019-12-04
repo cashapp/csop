@@ -1,0 +1,63 @@
+#!/bin/bash
+
+export GO_DESIRED_VERSION="go1.13.3"
+export GOLANGCILINT_VERSION="v1.21.0"
+export OPERATOR_SDK_VERSION="v0.12.0"
+export KIND_VERSION="v0.6.0"
+export KUBECTL_VERSION="v1.13.10"
+
+export TOOL_CACHE=${TOOL_CACHE:-/tmp/csop-tool-cache}
+export ARCH="$(uname -s | tr A-Z a-z)"
+
+export GO111MODULE=on
+
+mkdir -p ${TOOL_CACHE}/bin
+
+# install GoLang
+if ! [ -e ${TOOL_CACHE}/go/VERSION ] || ! grep -q "$GO_DESIRED_VERSION" ${TOOL_CACHE}/go/VERSION; then
+  echo "Installing $GO_DESIRED_VERSION"
+
+  rm -rf ${TOOL_CACHE}/go
+  curl -s https://storage.googleapis.com/golang/${GO_DESIRED_VERSION}.${ARCH}-amd64.tar.gz | tar -zxC ${TOOL_CACHE}
+fi
+
+# install golangci-lint
+GOLANGCI_LINT=${TOOL_CACHE}/bin/golangci-lint
+if [ ! -e ${GOLANGCI_LINT} ]; then
+  echo "Installing golangci-lint $GOLANGCILINT_VERSION"
+
+  pushd ${TOOL_CACHE}; curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | BINARY=golangci-lint bash -s ${GOLANGCILINT_VERSION}; popd
+fi
+
+# install operator-sdk
+OPERATOR_SDK=${TOOL_CACHE}/bin/operator-sdk
+if [ ! -e ${OPERATOR_SDK} ]; then
+  echo "Installing operator-sdk $OPERATOR_SDK_VERSION"
+
+  [[ $ARCH = "darwin" ]] && OPERATOR_SDK_OS=apple-darwin || OPERATOR_SDK_VERSION=linux-gnu
+  curl -sL https://github.com/operator-framework/operator-sdk/releases/download/${OPERATOR_SDK_VERSION}/operator-sdk-${OPERATOR_SDK_VERSION}-x86_64-${OPERATOR_SDK_OS} -o ${OPERATOR_SDK}
+  chmod 744 ${OPERATOR_SDK}
+fi
+
+# install kind
+KIND=${TOOL_CACHE}/bin/kind
+if [ ! -e ${KIND} ]; then
+  echo "Installing kind $KIND_VERSION"
+
+  curl -Lso ${KIND} https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-${ARCH}-amd64
+  chmod 744 ${KIND}
+fi
+
+# install kubectl
+KUBECTL=${TOOL_CACHE}/bin/kubectl
+if [ ! -e ${KUBECTL} ]; then
+  echo "Installing kubectl $KUBECTL_VERSION"
+
+  curl -Ls https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/${ARCH}/amd64/kubectl -o ${KUBECTL}
+  chmod 744 ${KUBECTL}
+fi
+
+# setup the environment to use the tools downloaded for CSOP
+export GOROOT=${TOOL_CACHE}/go
+export PATH=${GOROOT}/bin:${TOOL_CACHE}/bin:$PATH
+export GOBIN=${TOOL_CACHE}/bin
